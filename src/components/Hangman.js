@@ -17,8 +17,20 @@ class Hangman extends Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { mistake: 0, guessed: new Set(), answer: randomWord() };
+		this.state = {mistake: 0, guessed: new Set(), answer: null}
+		this.fetchWord()		
+		
 		this.handleGuess = this.handleGuess.bind(this);
+	}
+
+	fetchWord() {
+		randomWord()
+		.then((res) => res.json())	
+		.then(
+		  (result) => {			
+			this.setState({mistake: 0, guessed: new Set(), answer: result})
+		  }
+		)
 	}
 
 	guessedWord() {
@@ -46,15 +58,15 @@ class Hangman extends Component {
 		));
 	}
 
-	resetButton = () => {
-		this.setState({
-			mistake: 0,
-			guessed: new Set(),
-			answer: randomWord()
-		});
+	resetButton = () => {		
+		this.fetchWord()
 	};
 
 	render() {
+		if (this.state.answer === null) {
+			return (<div>LOADING</div>)
+		}
+
 		const gameOver = this.state.mistake >= this.props.maxWrong;
 		const altText = `${this.state.mistake}/${this.props.maxWrong} wrong guesses`;
 		const isWinner = this.guessedWord().join("") === this.state.answer;
@@ -98,7 +110,7 @@ class Hangman extends Component {
 				<p className='text-center'>
 					<img src={this.props.images[this.state.mistake]} alt={altText} />
 				</p>
-				<p className='text-center text-light'>Guess the Programming Language ?</p>
+				<p className='text-center text-light'>Guess the Word?</p>
 				<p className='Hangman-word text-center'>
 					{!gameOver ? this.guessedWord() : this.state.answer}{" "}
 				</p>
@@ -111,6 +123,9 @@ class Hangman extends Component {
 							Reset
 						</button>
 					</p>
+				</div>
+				<div>
+					<p><a href='https://github.com/acheaito/reactjs-hangman'>Source</a></p>
 				</div>
 			</div>
 		);
